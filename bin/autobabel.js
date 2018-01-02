@@ -14,7 +14,7 @@ const babelrc = initBabelConfig(configPath)
 
 console.log('Scanning deps...')
 const deps = findAllDeps(babelrc, cwd)
-const missingDeps = findMissingDeps(deps)
+const missingDeps = deps.filter(isPackageMissing)
 
 if (missingDeps.length) {
   console.log('Missing:')
@@ -49,14 +49,12 @@ function findAllDeps (babelrc, cwd) {
   )
 }
 
-function findMissingDeps (names) {
-  return names.filter(n => {
-    try {
-      resolve.sync(n, { basedir: cwd })
-    } catch (e) {
-      return true
-    }
-  })
+function isPackageMissing (name) {
+  try {
+    resolve.sync(name, { basedir: cwd })
+  } catch (e) {
+    return true
+  }
 }
 
 function installMissingDeps (deps, saveFlag, cb) {
